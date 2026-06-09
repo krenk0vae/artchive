@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✒️</text></svg>">
+    <title>Profil | Ar(t)chive</title>
+    <style>
+        body {
+            min-height: 100vh;
+            padding-bottom: calc(var(--nav-height) + 40px);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* ─── LOGGED-OUT VIEW ─── */
+        #logged-out-view {
+            display: none;
+            max-width: 450px;
+            margin: 10vh auto;
+            text-align: center;
+            background: var(--white);
+            padding: 60px 40px;
+            box-shadow: var(--shadow-lg);
+            border-top: 4px solid var(--gold-accent);
+            position: relative;
+        }
+
+        #logged-out-view::before {
+            content: "";
+            position: absolute;
+            top: 12px; left: 16px; right: 16px; bottom: 12px;
+            border: 1px solid var(--gold-light);
+            pointer-events: none;
+        }
+
+        #logged-out-view h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--gold-accent);
+        }
+
+        #logged-out-view .subtitle {
+            margin-bottom: 30px;
+            font-style: italic;
+            color: var(--text-muted);
+        }
+
+        /* ─── LOGGED-IN VIEW ─── */
+        #logged-in-view { display: none; }
+
+        .profile-header {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 40px;
+            background: var(--white);
+            padding: 50px;
+            box-shadow: var(--shadow);
+            margin-bottom: 50px;
+        }
+
+        .avatar-container {
+            width: 180px;
+            height: 180px;
+            border: 1px solid var(--gold-light);
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .avatar-inner {
+            width: 100%;
+            height: 100%;
+            background: #e8e0d5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            filter: sepia(0.5);
+        }
+
+        .profile-info h1 { font-size: 3rem; margin-bottom: 5px; }
+
+        .role-tag {
+            color: var(--gold-accent);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            margin: 25px 0;
+            padding: 20px 0;
+            border-top: 1px solid var(--paper-bg);
+            border-bottom: 1px solid var(--paper-bg);
+        }
+
+        .stat-box { text-align: center; }
+
+        .stat-box span {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stat-box small {
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .profile-actions { display: flex; gap: 15px; flex-wrap: wrap; }
+
+        /* ─── SECTION HEADER ─── */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section-header h2 { font-size: 1.8rem; }
+
+        .section-link {
+            color: var(--gold-accent);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .section-link:hover { opacity: 0.7; }
+
+        /* ─── ACCOUNT BOOK CARDS ─── */
+        .book-card {
+            height: 300px;
+            padding: 20px;
+            border-bottom-width: 4px;
+            justify-content: flex-end;
+        }
+
+        .book-card h3 { font-size: 1.2rem; margin-bottom: 5px; }
+        .book-card p  { font-size: 0.8rem; color: var(--text-muted); }
+
+        .book-card-new {
+            border: 2px dashed var(--gold-light);
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-accent);
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: border-color 0.3s, background 0.3s, transform 0.3s;
+        }
+
+        .book-card-new::before { display: none; }
+
+        .book-card-new:hover {
+            transform: translateY(-10px);
+            border-color: var(--gold-accent);
+            background: rgba(184, 140, 90, 0.04);
+        }
+
+        .new-card-icon { font-size: 2rem; line-height: 1; }
+
+        /* ─── LOGOUT ─── */
+        .logout-link {
+            display: inline-block;
+            margin-top: 60px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: color 0.2s;
+        }
+
+        .logout-link:hover { color: var(--ink-dark); }
+
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(59, 47, 47, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 50px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+            animation: fadeUp 0.3s ease both;
+        }
+
+        .modal-content h2 { font-size: 2rem; margin-bottom: 30px; }
+
+        .modal-textarea { min-height: 180px; resize: vertical; }
+
+        .modal-actions { display: flex; gap: 10px; }
+
+        .btn-save {
+            background: var(--ink-dark);
+            color: var(--white);
+            border: none;
+            padding: 15px 30px;
+            cursor: pointer;
+            flex: 2;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-save:hover { background: var(--gold-accent); }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--gold-accent);
+            padding: 15px 30px;
+            cursor: pointer;
+            flex: 1;
+            color: var(--gold-accent);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: background 0.3s, color 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-cancel:hover { background: var(--gold-accent); color: var(--white); }
+
+        /* Styl pro zobrazení textu v modálním okně (mód čtení) */
+        .modal-view-text {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 30px;
+            white-space: pre-wrap;
+            color: var(--ink-dark);
+            font-style: italic;
+            padding: 10px;
+            background: rgba(231, 217, 194, 0.2);
+            border-left: 3px solid var(--gold-accent);
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 700px) {
+            .profile-header {
+                grid-template-columns: 1fr;
+                padding: 30px 20px;
+            }
+            .avatar-container { width: 120px; height: 120px; }
+            .profile-info h1  { font-size: 2rem; }
+            .modal-content    { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="logged-out-view">
+        <h1>Ar(t)chive</h1>
+        <p class="subtitle">Vstupte do archivu</p>
+        <input type="email"    id="loginEmail" placeholder="E-mailová adresa" autocomplete="email">
+        <input type="password" id="loginPass"  placeholder="Heslo" autocomplete="current-password">
+        <button onclick="login()" class="btn-primary">Odemknout knihovnu</button>
+        <p id="error-message" class="error-message"></p>
+    </div>
+
+    <div id="logged-in-view">
+        <header class="profile-header">
+            <div class="avatar-container">
+                <div class="avatar-inner">✒️</div>
+            </div>
+            <div class="profile-info">
+                <h1 id="user-name-display">The Storyteller</h1>
+                <span class="role-tag">Autor</span>
+                <p style="color: var(--text-muted); max-width: 500px;">Hodně zajímavé bio</p>
+
+                <div class="stats">
+                    <div class="stat-box"><span>1</span><small>Rukopisů</small></div>
+                    <div class="stat-box"><span>0</span><small>Oblíbených</small></div>
+                    <div class="stat-box"><span>0</span><small>Sbírek</small></div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="btn-sm btn-sm-dark">Upravit profil</button>
+                    <button class="btn-sm btn-sm-gold">Sdílet profil</button>
+                    <button onclick="logout()" class="btn-sm btn-sm-dark">Odhlásit se</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="section-header">
+            <h2 class="serif">Sepsané svazky</h2>
+            <a class="section-link">Zobrazit vše →</a>
+        </div>
+
+        <div class="manuscript-grid">
+    <div class="book-card" onclick="viewPost('Kapka lásky', 'Poezie', 'Celý svět se se mnou točí\nSetmělá noc na Zlín padá\nA já hledím do tvých očí\nproč tě vlastně mám tak ráda?\n\nDržíš mě za ruku, jdeme\nPo kočičích hlavách domů\nVstříc městské uličky stinné\nMalá slunce svítí k tomu.\n\nLampy. Osamělé krásky.\nVysoké jako mladé stromy\nrovné, hladké, jak oblázky\nStráží ulice a domy\n\nTeplo loudím z jejich jasu\nA představím si mít to tvé.\nTřeš mi z líčka spadlou řasu\nA tichý moment nastane\n\nTen nekonečný prožitek\nmezi polibkem a váháním\nMáš strach, snad skoro jako vztek\nA můžeš ho teď sdílet s ním\n\nPřiložím svá ústa ke tvým\nChladné sklo mě uvítá vstříc\nNavždy se tebou otrávím,\ntopě se v tobě sebevíc.\n\nPřimknu si tě ke své hrudi\nA staneme se jeden, sám\nDno láhve však kůži studí\nA když popraská naříkám\n\nKam se mám podít před světem\nKdyž není v tobě zahalen\nA každý doušek dál zve mě\nv ten věčně osamělý sen.')"
+         role="button"
+         tabindex="0">
+        <div>
+            <h3 class="serif">Kapka lásky</h3>
+            <p>Žánr: Poezie</p>
+        </div>
+    </div>
+</div>
+
+            <div class="book-card book-card-new" id="openModalBtn" role="button" tabindex="0" aria-label="Nový rukopis">
+                <span class="new-card-icon">+</span>
+                <span>Nový rukopis</span>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="logout-link">Opustit archiv</button>
+    </div>
+</div>
+
+<div id="newPostModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+        <h2 class="serif" id="modal-title">Nový záznam do kroniky</h2>
+
+        <div id="modal-edit-fields">
+            <input type="text" id="postTitle" placeholder="Název díla...">
+
+            <select id="postGenre" style="margin-bottom: 20px;">
+                <option value="" disabled selected>Vyber žánr...</option>
+                <option>Fantasy</option>
+                <option>Cyberpunk</option>
+                <option>Romance</option>
+                <option>Horor</option>
+                <option>Historický</option>
+                <option>Poezie</option>
+                <option>Detektivní</option>
+                <option>Paranormální</option>
+                <option>Populárně naučné</option>
+                <option>Humor</option>
+            </select>
+
+            <textarea id="postText" class="modal-textarea" placeholder="Tvůj příběh začíná zde..."></textarea>
+        </div>
+
+        <div id="modal-view-fields" style="display: none;">
+            <p id="modal-view-genre" style="color: var(--gold-accent); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 15px; font-weight: bold;"></p>
+            <div id="modal-view-body" class="modal-view-text"></div>
+        </div>
+
+        <div class="modal-actions">
+            <button id="modal-save-btn" onclick="savePost()" class="btn-save">Uložit do archivu</button>
+            <button onclick="closeModal()" class="btn-cancel">Zavřít</button>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Hlavní navigace">
+    <a href="explorev5.html" class="nav-item">
+        
+        <span class="nav-label">Objevovat</span>
+    </a>
+    <a href="index.html" class="nav-item">
+        
+        <span class="nav-label">Domů</span>
+    </a>
+    <a href="accountv5.html" class="nav-item active" aria-current="page">
+        
+        <span class="nav-label">Profil</span>
+    </a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://bsjgjlogmoeqyxvttibd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzamdqbG9nbW9lcXl4dnR0aWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNDI3NjUsImV4cCI6MjA5MzgxODc2NX0.vzaYOHAORXG2Rw1hDhg353GQDbkeJmspp7WhRvIRyh0';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session) {
+            showLoggedIn(session.user);
+        } else {
+            document.getElementById('logged-out-view').style.display = 'block';
+        }
+    });
+
+    function showLoggedIn(user) {
+        document.getElementById('user-name-display').textContent =
+            user.user_metadata?.full_name || user.email;
+        document.getElementById('logged-out-view').style.display = 'none';
+        document.getElementById('logged-in-view').style.display  = 'block';
+    }
+
+    async function login() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPass').value;
+        const errorEl = document.getElementById('error-message');
+        errorEl.style.display = 'none';
+
+        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            errorEl.textContent = 'Klíč nepasuje: ' + error.message;
+            errorEl.style.display = 'block';
+        } else {
+            showLoggedIn(data.user);
+        }
+    }
+
+    async function logout() {
+        const { error } = await _supabase.auth.signOut();
+        if (error) {
+            alert('Chyba při odhlašování: ' + error.message);
+        } else {
+            window.location.href = 'index.html';
+        }
+    }
+
+    // ── MODAL ────────────────────────────────────────────────────────────────────
+    const modal = document.getElementById('newPostModal');
+    const openBtn = document.getElementById('openModalBtn');
+
+    function openModal() { 
+        document.getElementById('modal-title').textContent = 'Nový záznam do kroniky';
+        document.getElementById('modal-edit-fields').style.display = 'block';
+        document.getElementById('modal-view-fields').style.display = 'none';
+        document.getElementById('modal-save-btn').style.display = 'block';
+        modal.style.display = 'flex'; 
+    }
+
+    // Funkce pro zobrazení detailu kliknutého příspěvku
+    function viewPost(title, genre, text) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-view-genre').textContent = 'Žánr: ' + genre;
+        document.getElementById('modal-view-body').textContent = text;
+        
+        document.getElementById('modal-edit-fields').style.display = 'none';
+        document.getElementById('modal-view-fields').style.display = 'block';
+        document.getElementById('modal-save-btn').style.display = 'none';
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postText').value  = '';
+        document.getElementById('postGenre').value = '';
+    }
+
+    openBtn.addEventListener('click', openModal);
+    openBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
+    });
+
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+    });
+
+    async function savePost() {
+        const title = document.getElementById('postTitle').value.trim();
+        const text  = document.getElementById('postText').value.trim();
+
+        if (!title || !text) { alert('Příběh musí mít název i obsah!'); return; }
+
+        console.log('Ukládám rukopis:', { title, text });
+        alert('Rukopis byl úspěšně uložen do archivu!');
+        closeModal();
+    }
+</script>
+</body>
+</html>

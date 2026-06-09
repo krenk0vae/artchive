@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✒️</text></svg>">
+    <title>Objevovat | Ar(t)chive</title>
+    <style>
+        body { padding-bottom: calc(var(--nav-height) + 40px); }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        /* ─── HEADER & SEARCH ─── */
+        .explore-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .explore-header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            letter-spacing: -1px;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 20px 30px 20px 60px;
+            border: 1px solid var(--gold-light);
+            background: var(--white);
+            font-size: 1.1rem;
+            font-family: inherit;
+            box-shadow: var(--shadow);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 0 4px rgba(184, 140, 90, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold-accent);
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+
+        /* ─── GENRE SECTIONS ─── */
+        .genre-section { margin-bottom: 100px; }
+
+        .genre-title {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .genre-title::after {
+            content: "";
+            height: 1px;
+            flex-grow: 1;
+            background: var(--gold-light);
+        }
+
+        /* ─── EXPLORE BOOK CARDS ─── */
+        .book-card { height: 280px; }
+
+        .book-meta {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gold-accent);
+            font-weight: 700;
+        }
+
+        .book-title {
+            font-size: 1.3rem;
+            line-height: 1.2;
+            margin: 10px 0;
+        }
+
+        .book-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--paper-bg);
+            padding-top: 15px;
+        }
+
+        .kudos { display: flex; align-items: center; gap: 5px; }
+
+        /* ─── SHOW MORE ─── */
+        .show-more-container { text-align: center; }
+
+        .btn-more {
+            background: none;
+            border: 1px solid var(--gold-light);
+            padding: 12px 30px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--ink-dark);
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-more:hover {
+            background: var(--gold-accent);
+            color: var(--white);
+            border-color: var(--gold-accent);
+        }
+
+        /* ─── MODAL PRO PROHLÍŽENÍ ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(59, 47, 47, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 50px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+            animation: fadeUp 0.3s ease both;
+        }
+
+        .modal-content h2 { font-size: 2rem; margin-bottom: 15px; }
+
+        .modal-view-text {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 30px;
+            white-space: pre-wrap;
+            color: var(--ink-dark);
+            font-style: italic;
+            padding: 15px;
+            background: rgba(231, 217, 194, 0.2);
+            border-left: 3px solid var(--gold-accent);
+            line-height: 1.8;
+        }
+
+        .btn-close-modal {
+            background: var(--ink-dark);
+            color: var(--white);
+            border: none;
+            padding: 15px 30px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            font-family: inherit;
+        }
+        .btn-close-modal:hover { background: var(--gold-accent); }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            .explore-header h1 { font-size: 2.5rem; }
+            .manuscript-grid   { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .manuscript-grid { grid-template-columns: 1fr; }
+            .book-card       { height: 220px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="explore-header">
+        <h1>Objevovat</h1>
+        <div class="search-container">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="searchInput" class="search-input" placeholder="Hledej titul, autora nebo téma..." aria-label="Hledej v archivu">
+        </div>
+    </header>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Fantasy</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Stíny noci', 'Archivář', 'Fantasy', 'Příběh o prastarých stínech, které se probouzejí v temných koutech paměti světa...')"><div><span class="book-meta">Fantasy</span><h3 class="book-title serif">Stíny noci</h3></div><div class="book-footer"><span>Autor: Archivář</span><div class="kudos">❤️ 120</div></div></div>
+            <div class="book-card" onclick="openBook('Dračí krev', 'Elena R.', 'Fantasy', 'Krev draků koluje v žilách zapomenutých králů. Epické dobrodružství začíná.')"><div><span class="book-meta">Fantasy</span><h3 class="book-title serif">Dračí krev</h3></div><div class="book-footer"><span>Autor: Elena R.</span><div class="kudos">❤️ 85</div></div></div>
+            <div class="book-card" onclick="openBook('Zlomený meč', 'Gorthak', 'Fantasy', 'Když padne poslední bašta lidí, zbývá jen zrezivělá čepel a naděje.')"><div><span class="book-meta">Fantasy</span><h3 class="book-title serif">Zlomený meč</h3></div><div class="book-footer"><span>Autor: Gorthak</span><div class="kudos">❤️ 210</div></div></div>
+            <div class="book-card" onclick="openBook('Píseň elfů', 'Arwen77', 'Fantasy', 'Melodie, která dokáže vyléčit zemi, nebo ji naopak uvrhnout do věčného spánku.')"><div><span class="book-meta">Fantasy</span><h3 class="book-title serif">Píseň elfů</h3></div><div class="book-footer"><span>Autor: Arwen77</span><div class="kudos">❤️ 340</div></div></div>
+            <div class="book-card" onclick="openBook('Brána popela', 'Morwen', 'Fantasy', 'Průchod do podsvětí je otevřen. Jen málokdo najde cestu zpět.')"><div><span class="book-meta">Fantasy</span><h3 class="book-title serif">Brána popela</h3></div><div class="book-footer"><span>Autor: Morwen</span><div class="kudos">❤️ 56</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Fantasy</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Cyberpunk</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Neonový déšť', 'Runner', 'Cyberpunk', 'Kyselý déšť smývá krev z kybernetických implantátů v hlubinách Neo-Prahy.')"><div><span class="book-meta">Cyberpunk</span><h3 class="book-title serif">Neonový déšť</h3></div><div class="book-footer"><span>Autor: Runner</span><div class="kudos">❤️ 55</div></div></div>
+            <div class="book-card" onclick="openBook('Kód 707', 'Hacker X', 'Cyberpunk', 'Jediný řádek kódu, který může svrhnout megakorporaci. Odpočítávání začalo.')"><div><span class="book-meta">Cyberpunk</span><h3 class="book-title serif">Kód 707</h3></div><div class="book-footer"><span>Autor: Hacker X</span><div class="kudos">❤️ 410</div></div></div>
+            <div class="book-card" onclick="openBook('Křemíkové sny', 'Android_B', 'Cyberpunk', 'Sní androidi o svobodě, nebo jen opakují naprogramované smyčky?')"><div><span class="book-meta">Cyberpunk</span><h3 class="book-title serif">Křemíkové sny</h3></div><div class="book-footer"><span>Autor: Android_B</span><div class="kudos">❤️ 92</div></div></div>
+            <div class="book-card" onclick="openBook('Upgrade: Smrt', 'Cyber_Punk', 'Cyberpunk', 'Když se nelegální vylepšení těla zvrtne v boj o holé přežití.')"><div><span class="book-meta">Cyberpunk</span><h3 class="book-title serif">Upgrade: Smrt</h3></div><div class="book-footer"><span>Autor: Cyber_Punk</span><div class="kudos">❤️ 150</div></div></div>
+            <div class="book-card" onclick="openBook('Data v krvi', 'Proxy', 'Cyberpunk', 'Pašování dat v genetickém kódu je nebezpečné řemeslo. Zvlášť když vás sledují.')"><div><span class="book-meta">Cyberpunk</span><h3 class="book-title serif">Data v krvi</h3></div><div class="book-footer"><span>Autor: Proxy</span><div class="kudos">❤️ 33</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Cyberpunk</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Romance</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Dopis z Paříže', 'Amélie', 'Romance', 'Ztracená obálka nalezená po padesáti letech odhaluje tajemství zakázané lásky.')"><div><span class="book-meta">Romance</span><h3 class="book-title serif">Dopis z Paříže</h3></div><div class="book-footer"><span>Autor: Amélie</span><div class="kudos">❤️ 320</div></div></div>
+            <div class="book-card" onclick="openBook('Poslední tanec', 'Julian G.', 'Romance', 'Na parketu plném cizinců se jejich oči setkaly naposledy.')"><div><span class="book-meta">Romance</span><h3 class="book-title serif">Poslední tanec</h3></div><div class="book-footer"><span>Autor: Julian G.</span><div class="kudos">❤️ 190</div></div></div>
+            <div class="book-card" onclick="openBook('Srdce v bouři', 'Rose', 'Romance', 'Láska, která přišla nečekaně jako letní bouře, a zanechala po sobě spoušť.')"><div><span class="book-meta">Romance</span><h3 class="book-title serif">Srdce v bouři</h3></div><div class="book-footer"><span>Autor: Rose</span><div class="kudos">❤️ 415</div></div></div>
+            <div class="book-card" onclick="openBook('Mezi řádky', 'Leo_V', 'Romance', 'Dva spisovatelé, kteří spolu komunikují pouze skrze věnování ve svých knihách.')"><div><span class="book-meta">Romance</span><h3 class="book-title serif">Mezi řádky</h3></div><div class="book-footer"><span>Autor: Leo_V</span><div class="kudos">❤️ 88</div></div></div>
+            <div class="book-card" onclick="openBook('Léto v Provence', 'Bella', 'Romance', 'Vůně levandule, sklenka vína a setkání, které změní celý její život.')"><div><span class="book-meta">Romance</span><h3 class="book-title serif">Léto v Provence</h3></div><div class="book-footer"><span>Autor: Bella</span><div class="kudos">❤️ 210</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Romance</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Horor</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Zrcadlový Labyrint', 'Neznámý', 'Horor', 'Tvůj vlastní odraz v zrcadle se usmál. Ty jsi se ale neusmíval.')"><div><span class="book-meta">Horor</span><h3 class="book-title serif">Zrcadlový Labyrint</h3></div><div class="book-footer"><span>Autor: Neznámý</span><div class="kudos">❤️ 880</div></div></div>
+            <div class="book-card" onclick="openBook('Šepot ve zdi', 'Edgar', 'Horor', 'Ten zvuk neustává ani po půlnoci. Škrábání zevnitř omítky se přibližuje k posteli.')"><div><span class="book-meta">Horor</span><h3 class="book-title serif">Šepot ve zdi</h3></div><div class="book-footer"><span>Autor: Edgar</span><div class="kudos">❤️ 215</div></div></div>
+            <div class="book-card" onclick="openBook('Mrtvé ticho', 'Reaper', 'Horor', 'Nejhorší není to, když slyšíte kroky. Nejhorší je, když všechno utichne.')"><div><span class="book-meta">Horor</span><h3 class="book-title serif">Mrtvé ticho</h3></div><div class="book-footer"><span>Autor: Reaper</span><div class="kudos">❤️ 312</div></div></div>
+            <div class="book-card" onclick="openBook('Dům u hřbitova', 'Ghostie', 'Horor', 'Okna starého domu se dívají přímo na hroby. A hroby se dívají zpátky.')"><div><span class="book-meta">Horor</span><h3 class="book-title serif">Dům u hřbitova</h3></div><div class="book-footer"><span>Autor: Ghostie</span><div class="kudos">❤️ 145</div></div></div>
+            <div class="book-card" onclick="openBook('Tma má hlad', 'Nightmare', 'Horor', 'Nezhasínej svíčku. Jakmile zbyde jen tma, ucítíš její chladné sevření.')"><div><span class="book-meta">Horor</span><h3 class="book-title serif">Tma má hlad</h3></div><div class="book-footer"><span>Autor: Nightmare</span><div class="kudos">❤️ 550</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Horor</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Historický</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Pečeť krále', 'Kronikář', 'Historický', 'Ztracená listina Karla IV., která mohla přepsat dějiny střední Evropy.')"><div><span class="book-meta">Historický</span><h3 class="book-title serif">Pečeť krále</h3></div><div class="book-footer"><span>Autor: Kronikář</span><div class="kudos">❤️ 142</div></div></div>
+            <div class="book-card" onclick="openBook('Meč templářů', 'Raymond', 'Historický', 'Tajemství ukryté pod podlahou jeruzalémského chrámu po staletí.')"><div><span class="book-meta">Historický</span><h3 class="book-title serif">Meč templářů</h3></div><div class="book-footer"><span>Autor: Raymond</span><div class="kudos">❤️ 320</div></div></div>
+            <div class="book-card" onclick="openBook('Růže z Yorku', 'Anna_P', 'Historický', 'Intriky a zrady na anglickém dvoře během Války růží.')"><div><span class="book-meta">Historický</span><h3 class="book-title serif">Růže z Yorku</h3></div><div class="book-footer"><span>Autor: Anna_P</span><div class="kudos">❤️ 180</div></div></div>
+            <div class="book-card" onclick="openBook('Zánik Říma', 'Marcus', 'Historický', 'Pohled na poslední dny kdysi neporazitelné říše skrze oči řadového legionáře.')"><div><span class="book-meta">Historický</span><h3 class="book-title serif">Zánik Říma</h3></div><div class="book-footer"><span>Autor: Marcus</span><div class="kudos">❤️ 412</div></div></div>
+            <div class="book-card" onclick="openBook('Slovanská krev', 'Bořivoj', 'Historický', 'První pohanské kmeny bojující o své místo v hlubokých pohraničních hvozdech.')"><div><span class="book-meta">Historický</span><h3 class="book-title serif">Slovanská krev</h3></div><div class="book-footer"><span>Autor: Bořivoj</span><div class="kudos">❤️ 95</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Historický</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Poezie</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Verše zapomnění', 'Sapfó', 'Poezie', 'Křehké básně o pomíjivosti času a nevyslyšených prosbách k měsíci.')"><div><span class="book-meta">Poezie</span><h3 class="book-title serif">Verše zapomnění</h3></div><div class="book-footer"><span>Autor: Sapfó</span><div class="kudos">❤️ 94</div></div></div>
+            <div class="book-card" onclick="openBook('Půlnoční sonety', 'Byronik', 'Poezie', 'Temná romantická poezie oslavující melancholii a krásu noční oblohy.')"><div><span class="book-meta">Poezie</span><h3 class="book-title serif">Půlnoční sonety</h3></div><div class="book-footer"><span>Autor: Byronik</span><div class="kudos">❤️ 56</div></div></div>
+            <div class="book-card" onclick="openBook('Inkoustové slzy', 'Luna', 'Poezie', 'Sbírka moderních básní o životě ve velkoměstě a hledání smyslu.')"><div><span class="book-meta">Poezie</span><h3 class="book-title serif">Inkoustové slzy</h3></div><div class="book-footer"><span>Autor: Luna</span><div class="kudos">❤️ 112</div></div></div>
+            <div class="book-card" onclick="openBook('Zimní haiku', 'Matsuo', 'Poezie', 'Tradiční japonské tříverší zachycující prchavé okamžiky mrazivé přírody.')"><div><span class="book-meta">Poezie</span><h3 class="book-title serif">Zimní haiku</h3></div><div class="book-footer"><span>Autor: Matsuo</span><div class="kudos">❤️ 38</div></div></div>
+            <div class="book-card" onclick="openBook('Rytmus deště', 'RainBoy', 'Poezie', 'Melodické básně psané v kavárnách za šumění kapek dopadajících na sklo.')"><div><span class="book-meta">Poezie</span><h3 class="book-title serif">Rytmus deště</h3></div><div class="book-footer"><span>Autor: RainBoy</span><div class="kudos">❤️ 150</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Poezie</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Detektivní</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Vražda v archivu', 'Holmes.jr', 'Detektivní', 'Tělo nalezené v zamčené studovně. Jedinou stopou je rozevřená stará kronika.')"><div><span class="book-meta">Detektivní</span><h3 class="book-title serif">Vražda v archivu</h3></div><div class="book-footer"><span>Autor: Holmes.jr</span><div class="kudos">❤️ 530</div></div></div>
+            <div class="book-card" onclick="openBook('Mrtvá svědkyně', 'Poirot_2', 'Detektivní', 'Zanechala po sobě jen rozbité hodinky a nahrávku, která nedává smysl.')"><div><span class="book-meta">Detektivní</span><h3 class="book-title serif">Mrtvá svědkyně</h3></div><div class="book-footer"><span>Autor: Poirot_2</span><div class="kudos">❤️ 210</div></div></div>
+            <div class="book-card" onclick="openBook('Stopy v prachu', 'Marlowe', 'Detektivní', 'V tomhle městě nikdo nemluví pravdu. Detektiv má jen 24 hodin na vyřešení případu.')"><div><span class="book-meta">Detektivní</span><h3 class="book-title serif">Stopy v prachu</h3></div><div class="book-footer"><span>Autor: Marlowe</span><div class="kudos">❤️ 345</div></div></div>
+            <div class="book-card" onclick="openBook('Poslední alibi', 'Christie', 'Detektivní', 'Všichni podezřelí mají neprůstřelné alibi. Přesto jeden z nich lže.')"><div><span class="book-meta">Detektivní</span><h3 class="book-title serif">Poslední alibi</h3></div><div class="book-footer"><span>Autor: Christie</span><div class="kudos">❤️ 920</div></div></div>
+            <div class="book-card" onclick="openBook('Noční hlídka', 'Vimes', 'Detektivní', 'Když se v ulicích objeví stvůra, stará garda musí vyrazit do deště.')"><div><span class="book-meta">Detektivní</span><h3 class="book-title serif">Noční hlídka</h3></div><div class="book-footer"><span>Autor: Vimes</span><div class="kudos">❤️ 158</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Detektivní</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Paranormální</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Duchové staré knihovny', 'Médium_01', 'Paranormální', 'Některé knihy by se neměly otevírat nahlas. Přivolávají ty, co už odešli.')"><div><span class="book-meta">Paranormální</span><h3 class="book-title serif">Duchové staré knihovny</h3></div><div class="book-footer"><span>Autor: Médium_01</span><div class="kudos">❤️ 215</div></div></div>
+            <div class="book-card" onclick="openBook('Mezi dvěma světy', 'S. Walker', 'Paranormální', 'Hranice mezi realitou a astrálem je tenká jako lidský dech.')"><div><span class="book-meta">Paranormální</span><h3 class="book-title serif">Mezi dvěma světy</h3></div><div class="book-footer"><span>Autor: S. Walker</span><div class="kudos">❤️ 1420</div></div></div>
+            <div class="book-card" onclick="openBook('Proroctví krve', 'Oracle', 'Paranormální', 'Starodávná věštba se začíná naplňovat. První znamení se objevila na obloze.')"><div><span class="book-meta">Paranormální</span><h3 class="book-title serif">Proroctví krve</h3></div><div class="book-footer"><span>Autor: Oracle</span><div class="kudos">❤️ 390</div></div></div>
+            <div class="book-card" onclick="openBook('Stín v zrcadle', 'Reflex', 'Paranormální', 'Když se podíváte do zrcadla, co když to, co vidíte, není váš odraz?')"><div><span class="book-meta">Paranormální</span><h3 class="book-title serif">Stín v zrcadle</h3></div><div class="book-footer"><span>Autor: Reflex</span><div class="kudos">❤️ 88</div></div></div>
+            <div class="book-card" onclick="openBook('Aura smrti', 'Psychic', 'Paranormální', 'Schopnost vidět zbývající čas lidského života se může stát prokletím.')"><div><span class="book-meta">Paranormální</span><h3 class="book-title serif">Aura smrti</h3></div><div class="book-footer"><span>Autor: Psychic</span><div class="kudos">❤️ 512</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Paranormální</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Populárně naučné</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Stručná historie inkoustu', 'Prof. Písmo', 'Populárně naučné', 'Jak chemické složení inkoustu ovlivnilo uchování klíčových historických smluv.')"><div><span class="book-meta">Populárně naučné</span><h3 class="book-title serif">Stručná historie inkoustu</h3></div><div class="book-footer"><span>Autor: Prof. Písmo</span><div class="kudos">❤️ 89</div></div></div>
+            <div class="book-card" onclick="openBook('Psychologie vyprávění', 'Dr. Kniha', 'Populárně naučné', 'Proč lidský mozek miluje příběhy a jak struktura vyprávění ovlivňuje emoce.')"><div><span class="book-meta">Populárně naučné</span><h3 class="book-title serif">Psychologie vyprávění</h3></div><div class="book-footer"><span>Autor: Dr. Kniha</span><div class="kudos">❤️ 256</div></div></div>
+            <div class="book-card" onclick="openBook('Vesmír v kostce', 'Astro_N', 'Populárně naučné', 'Srozumitelný průvodce kvantovou fyzikou a záhadami černých děr.')"><div><span class="book-meta">Populárně naučné</span><h3 class="book-title serif">Vesmír v kostce</h3></div><div class="book-footer"><span>Autor: Astro_N</span><div class="kudos">❤️ 412</div></div></div>
+            <div class="book-card" onclick="openBook('Umění rétoriky', 'Cicero2', 'Populárně naučné', 'Základní techniky mluveného slova, které fungovaly v antickém Římě i dnes.')"><div><span class="book-meta">Populárně naučné</span><h3 class="book-title serif">Umění rétoriky</h3></div><div class="book-footer"><span>Autor: Cicero2</span><div class="kudos">❤️ 67</div></div></div>
+            <div class="book-card" onclick="openBook('Jak funguje mozek', 'Neuro_J', 'Populárně naučné', 'Fascinující pohled do zákulisí synapsí, paměti a neuroplasticity.')"><div><span class="book-meta">Populárně naučné</span><h3 class="book-title serif">Jak funguje mozek</h3></div><div class="book-footer"><span>Autor: Neuro_J</span><div class="kudos">❤️ 180</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Populárně naučné</button></div>
+    </section>
+
+    <section class="genre-section">
+        <h2 class="genre-title">Humor</h2>
+        <div class="manuscript-grid">
+            <div class="book-card" onclick="openBook('Jak (ne)napsat bestseller', 'Šprýt', 'Humor', 'Sarkastický návod pro začínající autory, jak úspěšně naštvat každého nakladatele.')"><div><span class="book-meta">Humor</span><h3 class="book-title serif">Jak (ne)napsat bestseller</h3></div><div class="book-footer"><span>Autor: Šprýt</span><div class="kudos">❤️ 612</div></div></div>
+            <div class="book-card" onclick="openBook('Deník smolaře', 'Murphy', 'Humor', 'Když se může něco pokazit, pokazí se to hned první kapitole.')"><div><span class="book-meta">Humor</span><h3 class="book-title serif">Deník smolaře</h3></div><div class="book-footer"><span>Autor: Murphy</span><div class="kudos">❤️ 320</div></div></div>
+            <div class="book-card" onclick="openBook('Příliš mnoho kafe', 'Student_X', 'Humor', 'Sonda do života studenta, který se pokouší přežít zkouškové období v kofeinu.')"><div><span class="book-meta">Humor</span><h3 class="book-title serif">Příliš mnoho kafe</h3></div><div class="book-footer"><span>Autor: Student_X</span><div class="kudos">❤️ 156</div></div></div>
+            <div class="book-card" onclick="openBook('Kočka v tiskárně', 'Mňau', 'Humor', 'Co se stane, když necháte zvířecího mazlíčka o samotě v redakci novin.')"><div><span class="book-meta">Humor</span><h3 class="book-title serif">Kočka v tiskárně</h3></div><div class="book-footer"><span>Autor: Mňau</span><div class="kudos">❤️ 890</div></div></div>
+            <div class="book-card" onclick="openBook('Útrapy korektora', 'Grammar_Nazi', 'Humor', 'Příběh muže, který ztrácí příčetnost nad chybějícími čárkami v souvětích.')"><div><span class="book-meta">Humor</span><h3 class="book-title serif">Útrapy korektora</h3></div><div class="book-footer"><span>Autor: Grammar_Nazi</span><div class="kudos">❤️ 42</div></div></div>
+        </div>
+        <div class="show-more-container"><button class="btn-more">Více z žánru Humor</button></div>
+    </section>
+</div>
+
+<div id="readBookModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-content">
+        <h2 class="serif" id="modalBookTitle">Název</h2>
+        <p id="modalBookMeta" style="color: var(--gold-accent); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 15px; font-weight: bold;"></p>
+        <div id="modalBookBody" class="modal-view-text">Text příběhu...</div>
+        <button onclick="closeBookModal()" class="btn-close-modal">Zavřít</button>
+    </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Hlavní navigace">
+    <a href="explorev5.html" class="nav-item active" aria-current="page">
+        
+        <span class="nav-label">Objevovat</span>
+    </a>
+    <a href="index.html" class="nav-item">
+        
+        <span class="nav-label">Domů</span>
+    </a>
+    <a href="accountv5.html" class="nav-item">
+        
+        <span class="nav-label">Profil</span>
+    </a>
+</nav>
+
+<script>
+    // a) Funkce pro dynamické vyhledávání v reálném čase
+    const searchInput = document.getElementById('searchInput');
+    const genreSections = document.querySelectorAll('.genre-section');
+
+    searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+
+        genreSections.forEach(section => {
+            const cards = section.querySelectorAll('.book-card');
+            let visibleCardsCount = 0;
+
+            cards.forEach(card => {
+                const title = card.querySelector('.book-title').textContent.toLowerCase();
+                const meta = card.querySelector('.book-meta').textContent.toLowerCase();
+                const author = card.querySelector('.book-footer span').textContent.toLowerCase();
+                
+                // Kontrola shody v názvu, žánru nebo autorovi
+                if (title.includes(query) || meta.includes(query) || author.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCardsCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Pokud žánr neobsahuje žádnou kartu odpovídající vyhledávání, skryje se celá sekce
+            if (visibleCardsCount > 0) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+    });
+
+    // a) Funkce pro otevírání a zavírání modálního okna s textem
+    const modal = document.getElementById('readBookModal');
+
+    function openBook(title, author, genre, text) {
+        document.getElementById('modalBookTitle').textContent = title;
+        document.getElementById('modalBookMeta').textContent = `Žánr: ${genre} | Autor: ${author}`;
+        document.getElementById('modalBookBody').textContent = text;
+        modal.style.display = 'flex';
+    }
+
+    function closeBookModal() {
+        modal.style.display = 'none';
+    }
+
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeBookModal(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') closeBookModal();
+    });
+</script>
+</body>
+</html>
