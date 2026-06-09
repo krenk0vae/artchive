@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✒️</text></svg>">
+    <title>Vítejte v Archivu | Ar(t)chive</title>
+    <style>
+        body { padding-bottom: calc(var(--nav-height) + 40px); }
+
+        /* ─── HERO ─── */
+        .hero {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+            position: relative;
+            border-bottom: 8px solid var(--gold-accent);
+            overflow: hidden;
+            transition: height 0.3s ease;
+        }
+
+        .hero-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 0;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(59, 47, 47, 0.4);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeUp 1s ease both;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 100px;
+            background: linear-gradient(transparent, var(--paper-bg));
+            z-index: 3;
+        }
+
+        .hero-eyebrow {
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(4rem, 12vw, 8rem);
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        /* ─── LOGIN CARD ─── */
+        .login-container {
+            max-width: 500px;
+            margin: -120px auto 100px;
+            position: relative;
+            z-index: 10;
+            padding: 0 20px;
+            animation: fadeUp 1s 0.3s ease both;
+        }
+
+        .login-card {
+            background: var(--white);
+            padding: 60px 50px;
+            box-shadow: var(--shadow-lg);
+            border-bottom: 1px solid var(--gold-light);
+            text-align: center;
+            position: relative;
+        }
+
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 10px; left: 30px; right: 30px; bottom: 10px;
+            border: 1px solid var(--gold-light);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-card h2 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: var(--gold-accent);
+        }
+
+        .login-card .card-subtitle {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        #loginName { display: none; }
+
+        /* ─── CONTENT SECTIONS ─── */
+        .content-wrapper { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+        .section { margin-bottom: 80px; text-align: center; }
+
+        .section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section h2::after {
+            content: "✦";
+            display: block;
+            font-size: 1rem;
+            color: var(--gold-accent);
+            margin-top: 10px;
+        }
+
+        .section-text { color: var(--text-muted); max-width: 600px; margin: 0 auto; }
+
+        /* ─── GENRE GRID ─── */
+        .genre-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .genre-box {
+            padding: 25px 15px;
+            background: var(--white);
+            border: 1px solid var(--gold-light);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s;
+            cursor: pointer;
+        }
+
+        .genre-box:hover {
+            background: var(--gold-accent);
+            color: var(--white);
+            border-color: var(--gold-accent);
+            transform: translateY(-5px);
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 600px) {
+            /* c) Zmenšení hero sekce pro mobilní zařízení */
+            .hero { height: 40vh; }
+            .hero-content h1 { font-size: 3.5rem; }
+            .login-container { margin-top: -40px; }
+            .login-card { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <img
+        class="hero-img"
+        src="obr/knihovna.avif"
+        srcset="obr/knihovna640.avif 640w,
+                obr/knihovna1920.avif 1920w,
+                obr/knihovna2400.avif 2400w,
+                obr/knihovna.avif 5112w"
+        sizes="100vw"
+        alt="Velká historická knihovna"
+    >
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <p class="hero-eyebrow">Vítejte v prostoru pro</p>
+        <h1>Příběhy</h1>
+        <p class="hero-eyebrow">Začněte psát svou historii</p>
+    </div>
+</div>
+
+<div class="login-container">
+    <div class="login-card" id="auth-card">
+        <h2 id="card-title">Odemknout Archiv</h2>
+        <p class="card-subtitle" id="card-subtitle">Vložte své přihlašovací údaje</p>
+
+        <input type="email"    id="loginEmail" placeholder="E-mailová adresa" autocomplete="email">
+        <input type="text"     id="loginName"  placeholder="Uživatelské jméno" autocomplete="username">
+        <input type="password" id="loginPass"  placeholder="Heslo" autocomplete="current-password">
+
+        <div id="login-buttons">
+            <button onclick="login()" class="btn-primary">Vstoupit</button>
+            <button onclick="showSignUp()" class="btn-secondary">Vytvořit nový účet</button>
+        </div>
+
+        <div id="signup-buttons" style="display:none;">
+            <button onclick="signUp()" class="btn-primary">Dokončit registraci</button>
+            <button onclick="showLogin()" class="btn-secondary">Zpět na přihlášení</button>
+        </div>
+
+        <p id="error-message" class="error-message"></p>
+    </div>
+</div>
+
+<div class="content-wrapper">
+    <div class="section">
+        <h2>O nás</h2>
+        <p class="section-text">Komunita autorů a čtenářů. Jednou třeba propojím explore page s databází uživatelů a bude to fungovat, ale dnes to nebude.</p>
+    </div>
+
+    <div class="section">
+        <h2>Žánry</h2>
+        <div class="genre-grid">
+            <div class="genre-box">Fantasy</div>
+            <div class="genre-box">Cyberpunk</div>
+            <div class="genre-box">Romance</div>
+            <div class="genre-box">Horor</div>
+            <div class="genre-box">Historický</div>
+            <div class="genre-box">Poezie</div>
+            <div class="genre-box">Detektivní</div>
+            <div class="genre-box">Paranormální</div>
+            <div class="genre-box">Populárně naučné</div>
+            <div class="genre-box">Humor</div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-logo serif">Ar(t)chive</div>
+    <p>Otázky? Připomínky? Napište nám na:</p>
+    <p class="footer-contact">
+        <a href="mailto:artchive@email.com">artchive@email.com</a>
+    </p>
+    <div class="social-links">
+        <a href="#">Instagram</a>
+        <a href="#">Twitter</a>
+    </div>
+    <p class="footer-copy">© 2026 Ar(t)chive.</p>
+</footer>
+
+<nav class="bottom-nav" aria-label="Hlavní navigace">
+    <a href="explorev5.html" class="nav-item">
+       
+        <span class="nav-label">Objevovat</span>
+    </a>
+    <a href="index.html" class="nav-item active" aria-current="page">
+        
+        <span class="nav-label">Domů</span>
+    </a>
+    <a href="accountv5.html" class="nav-item">
+       
+        <span class="nav-label">Profil</span>
+    </a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://bsjgjlogmoeqyxvttibd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzamdqbG9nbW9lcXl4dnR0aWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNDI3NjUsImV4cCI6MjA5MzgxODc2NX0.vzaYOHAORXG2Rw1hDhg353GQDbkeJmspp7WhRvIRyh0';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    function showError(msg) {
+        const el = document.getElementById('error-message');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    function clearError() {
+        const el = document.getElementById('error-message');
+        el.style.display = 'none';
+        el.textContent = '';
+    }
+
+    function showSignUp() {
+        clearError();
+        document.getElementById('loginName').style.display = 'block';
+        document.getElementById('card-title').textContent = 'Vytvořit účet';
+        document.getElementById('card-subtitle').textContent = 'Vyplňte všechna pole níže';
+        document.getElementById('login-buttons').style.display = 'none';
+        document.getElementById('signup-buttons').style.display = 'block';
+    }
+
+    function showLogin() {
+        clearError();
+        document.getElementById('loginName').style.display = 'none';
+        document.getElementById('card-title').textContent = 'Odemknout Archiv';
+        document.getElementById('card-subtitle').textContent = 'Vložte své přihlašovací údaje';
+        document.getElementById('login-buttons').style.display = 'block';
+        document.getElementById('signup-buttons').style.display = 'none';
+    }
+
+    async function signUp() {
+        const email    = document.getElementById('loginEmail').value.trim();
+        const name     = document.getElementById('loginName').value.trim();
+        const password = document.getElementById('loginPass').value;
+
+        if (!email || !password || !name) {
+            showError('Vyplň všechna pole (E-mail, Jméno i Heslo).');
+            return;
+        }
+
+        const { error } = await _supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name } }
+        });
+
+        if (error) {
+            showError('Chyba při registraci: ' + error.message);
+        } else {
+            showLogin();
+            showError('Účet vytvořen! Zkontroluj e-mail a potvrď registraci, pak se přihlas.');
+            document.getElementById('error-message').style.color = '#2e7d32';
+        }
+    }
+
+    async function login() {
+        const email    = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPass').value;
+        clearError();
+
+        const { error } = await _supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            showError('Klíč nepasuje do zámku: ' + error.message);
+        } else {
+            window.location.href = 'accountv5.html';
+        }
+    }
+</script>
+</body>
+</html>
