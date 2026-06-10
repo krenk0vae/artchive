@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='.9em'%20font-size='90'%3E✒️%3C/text%3E%3C/svg%3E">
+    <title>Profil | Ar(t)chive</title>
+</head>
+<body>
+
+<div class="container">
+    <div id="logged-out-view">
+        <h1>Ar(t)chive</h1>
+        <p class="subtitle">Vstupte do archivu</p>
+        <input type="email"    id="loginEmail" placeholder="E-mailová adresa" autocomplete="email">
+        <input type="password" id="loginPass"  placeholder="Heslo" autocomplete="current-password">
+        <button onclick="login()" class="btn-primary">Odemknout knihovnu</button>
+        <p id="error-message" class="error-message"></p>
+    </div>
+
+    <div id="logged-in-view">
+        <header class="profile-header">
+            <div class="avatar-container">
+                <div class="avatar-inner">✒️</div>
+            </div>
+            <div class="profile-info">
+                <h1 id="user-name-display">The Storyteller</h1>
+                <span class="role-tag">Autor</span>
+                <p style="color: var(--text-muted); max-width: 500px;">Hodně zajímavé bio</p>
+
+                <div class="stats">
+                    <div class="stat-box"><span>1</span><small>Rukopisů</small></div>
+                    <div class="stat-box"><span>0</span><small>Oblíbených</small></div>
+                    <div class="stat-box"><span>0</span><small>Sbírek</small></div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="btn-sm btn-sm-dark">Upravit profil</button>
+                    <button class="btn-sm btn-sm-gold">Sdílet profil</button>
+                    <button onclick="logout()" class="btn-sm btn-sm-dark">Odhlásit se</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="section-header">
+            <h2 class="serif">Sepsané svazky</h2>
+            <a class="section-link">Zobrazit vše →</a>
+        </div>
+
+        <div class="manuscript-grid">
+    <div class="book-card" onclick="viewPost('Kapka lásky', 'Poezie', 'Celý svět se se mnou točí\nSetmělá noc na Zlín padá\nA já hledím do tvých očí\nproč tě vlastně mám tak ráda?\n\nDržíš mě za ruku, jdeme\nPo kočičích hlavách domů\nVstříc městské uličky stinné\nMalá slunce svítí k tomu.\n\nLampy. Osamělé krásky.\nVysoké jako mladé stromy\nrovné, hladké, jak oblázky\nStráží ulice a domy\n\nTeplo loudím z jejich jasu\nA představím si mít to tvé.\nTřeš mi z líčka spadlou řasu\nA tichý moment nastane\n\nTen nekonečný prožitek\nmezi polibkem a váháním\nMáš strach, snad skoro jako vztek\nA můžeš ho teď sdílet s ním\n\nPřiložím svá ústa ke tvým\nChladné sklo mě uvítá vstříc\nNavždy se tebou otrávím,\ntopě se v tobě sebevíc.\n\nPřimknu si tě ke své hrudi\nA staneme se jeden, sám\nDno láhve však kůži studí\nA když popraská naříkám\n\nKam se mám podít před světem\nKdyž není v tobě zahalen\nA každý doušek dál zve mě\nv ten věčně osamělý sen.')"
+         role="button"
+         tabindex="0">
+        <div>
+            <h3 class="serif">Kapka lásky</h3>
+            <p>Žánr: Poezie</p>
+        </div>
+    </div>
+</div>
+
+            <div class="book-card book-card-new" id="openModalBtn" role="button" tabindex="0" aria-label="Nový rukopis">
+                <span class="new-card-icon">+</span>
+                <span>Nový rukopis</span>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="logout-link">Opustit archiv</button>
+    </div>
+
+
+<div id="newPostModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+        <h2 class="serif" id="modal-title">Nový záznam do kroniky</h2>
+
+        <div id="modal-edit-fields">
+            <input type="text" id="postTitle" placeholder="Název díla...">
+
+            <select id="postGenre" style="margin-bottom: 20px;">
+                <option value="" disabled selected>Vyber žánr...</option>
+                <option>Fantasy</option>
+                <option>Cyberpunk</option>
+                <option>Romance</option>
+                <option>Horor</option>
+                <option>Historický</option>
+                <option>Poezie</option>
+                <option>Detektivní</option>
+                <option>Paranormální</option>
+                <option>Populárně naučné</option>
+                <option>Humor</option>
+            </select>
+
+            <textarea id="postText" class="modal-textarea" placeholder="Tvůj příběh začíná zde..."></textarea>
+        </div>
+
+        <div id="modal-view-fields" style="display: none;">
+            <p id="modal-view-genre" style="color: var(--gold-accent); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 15px; font-weight: bold;"></p>
+            <div id="modal-view-body" class="modal-view-text"></div>
+        </div>
+
+        <div class="modal-actions">
+            <button id="modal-save-btn" onclick="savePost()" class="btn-save">Uložit do archivu</button>
+            <button onclick="closeModal()" class="btn-cancel">Zavřít</button>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Hlavní navigace">
+    <a href="explorev5.html" class="nav-item">
+        
+        <span class="nav-label">Objevovat</span>
+    </a>
+    <a href="index.html" class="nav-item">
+        
+        <span class="nav-label">Domů</span>
+    </a>
+    <a href="accountv5.html" class="nav-item active" aria-current="page">
+        
+        <span class="nav-label">Profil</span>
+    </a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://bsjgjlogmoeqyxvttibd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzamdqbG9nbW9lcXl4dnR0aWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNDI3NjUsImV4cCI6MjA5MzgxODc2NX0.vzaYOHAORXG2Rw1hDhg353GQDbkeJmspp7WhRvIRyh0';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session) {
+            showLoggedIn(session.user);
+        } else {
+            document.getElementById('logged-out-view').style.display = 'block';
+        }
+    });
+
+    function showLoggedIn(user) {
+        document.getElementById('user-name-display').textContent =
+            user.user_metadata?.full_name || user.email;
+        document.getElementById('logged-out-view').style.display = 'none';
+        document.getElementById('logged-in-view').style.display  = 'block';
+    }
+
+    async function login() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPass').value;
+        const errorEl = document.getElementById('error-message');
+        errorEl.style.display = 'none';
+
+        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            errorEl.textContent = 'Klíč nepasuje: ' + error.message;
+            errorEl.style.display = 'block';
+        } else {
+            showLoggedIn(data.user);
+        }
+    }
+
+    async function logout() {
+        const { error } = await _supabase.auth.signOut();
+        if (error) {
+            alert('Chyba při odhlašování: ' + error.message);
+        } else {
+            window.location.href = 'index.html';
+        }
+    }
+
+    // ── MODAL ────────────────────────────────────────────────────────────────────
+    const modal = document.getElementById('newPostModal');
+    const openBtn = document.getElementById('openModalBtn');
+
+    function openModal() { 
+        document.getElementById('modal-title').textContent = 'Nový záznam do kroniky';
+        document.getElementById('modal-edit-fields').style.display = 'block';
+        document.getElementById('modal-view-fields').style.display = 'none';
+        document.getElementById('modal-save-btn').style.display = 'block';
+        modal.style.display = 'flex'; 
+    }
+
+    // Funkce pro zobrazení detailu kliknutého příspěvku
+    function viewPost(title, genre, text) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-view-genre').textContent = 'Žánr: ' + genre;
+        document.getElementById('modal-view-body').textContent = text;
+        
+        document.getElementById('modal-edit-fields').style.display = 'none';
+        document.getElementById('modal-view-fields').style.display = 'block';
+        document.getElementById('modal-save-btn').style.display = 'none';
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postText').value  = '';
+        document.getElementById('postGenre').value = '';
+    }
+
+    openBtn.addEventListener('click', openModal);
+    openBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
+    });
+
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+    });
+
+    async function savePost() {
+        const title = document.getElementById('postTitle').value.trim();
+        const text  = document.getElementById('postText').value.trim();
+
+        if (!title || !text) { alert('Příběh musí mít název i obsah!'); return; }
+
+        console.log('Ukládám rukopis:', { title, text });
+        alert('Rukopis byl úspěšně uložen do archivu!');
+        closeModal();
+    }
+</script>
+</body>
+</html>

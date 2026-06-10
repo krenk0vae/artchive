@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='.9em'%20font-size='90'%3E✒️%3C/text%3E%3C/svg%3E">
+    <title>Vítejte v archivu | Ar(t)chive</title>
+</head>
+<body>
+
+<div class="hero">
+    <img
+        class="hero-img"
+        src="obr/knihovna.avif"
+        srcset="obr/knihovna640.avif 640w,
+                obr/knihovna1920.avif 1920w,
+                obr/knihovna2400.avif 2400w,
+                obr/knihovna.avif 5112w"
+        sizes="100vw"
+        alt="Velká historická knihovna"
+    >
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <p class="hero-eyebrow">Vítejte v prostoru pro</p>
+        <h1>Příběhy</h1>
+        <p class="hero-eyebrow">Začněte psát svou historii</p>
+    </div>
+</div>
+
+<div class="login-container">
+    <div class="login-card" id="auth-card">
+        <h2 id="card-title">Odemknout archiv</h2>
+        <p class="card-subtitle" id="card-subtitle">Vložte své přihlašovací údaje</p>
+
+        <input type="email"    id="loginEmail" placeholder="E-mailová adresa" autocomplete="email">
+        <input type="text"     id="loginName"  placeholder="Uživatelské jméno" autocomplete="username">
+        <input type="password" id="loginPass"  placeholder="Heslo" autocomplete="current-password">
+
+        <div id="login-buttons">
+            <button onclick="login()" class="btn-primary">Vstoupit</button>
+            <button onclick="showSignUp()" class="btn-secondary">Vytvořit nový účet</button>
+        </div>
+
+        <div id="signup-buttons" style="display:none;">
+            <button onclick="signUp()" class="btn-primary">Dokončit registraci</button>
+            <button onclick="showLogin()" class="btn-secondary">Zpět na přihlášení</button>
+        </div>
+
+        <p id="error-message" class="error-message"></p>
+    </div>
+</div>
+
+<div class="content-wrapper">
+    <div class="section">
+        <h2>O nás</h2>
+        <p class="section-text">Komunita autorů a čtenářů. Jednou třeba propojím explore page s databází uživatelů a bude to fungovat, ale dnes to nebude. Jsem ráda, že jste tady.</p>
+    </div>
+
+    <div class="section">
+        <h2>Žánry</h2>
+        <div class="genre-grid">
+            <div class="genre-box">Fantasy</div>
+            <div class="genre-box">Cyberpunk</div>
+            <div class="genre-box">Romance</div>
+            <div class="genre-box">Horor</div>
+            <div class="genre-box">Historický</div>
+            <div class="genre-box">Poezie</div>
+            <div class="genre-box">Detektivní</div>
+            <div class="genre-box">Paranormální</div>
+            <div class="genre-box">Populárně naučné</div>
+            <div class="genre-box">Humor</div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-logo serif">Ar(t)chive</div>
+    <p>Otázky? Připomínky? Napište nám na:</p>
+    <p class="footer-contact">
+        <a href="mailto:artchive@email.com">artchive@email.com</a>
+    </p>
+    <div class="social-links">
+        <a href="#">Instagram</a>
+        <a href="#">Twitter</a>
+    </div>
+    <p class="footer-copy">© 2026 Ar(t)chive.</p>
+</footer>
+
+<nav class="bottom-nav" aria-label="Hlavní navigace">
+    <a href="explorev5.html" class="nav-item">
+       
+        <span class="nav-label">Objevovat</span>
+    </a>
+    <a href="index.html" class="nav-item active" aria-current="page">
+        
+        <span class="nav-label">Domů</span>
+    </a>
+    <a href="accountv5.html" class="nav-item">
+       
+        <span class="nav-label">Profil</span>
+    </a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://bsjgjlogmoeqyxvttibd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzamdqbG9nbW9lcXl4dnR0aWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNDI3NjUsImV4cCI6MjA5MzgxODc2NX0.vzaYOHAORXG2Rw1hDhg353GQDbkeJmspp7WhRvIRyh0';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    function showError(msg) {
+        const el = document.getElementById('error-message');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    function clearError() {
+        const el = document.getElementById('error-message');
+        el.style.display = 'none';
+        el.textContent = '';
+    }
+
+    function showSignUp() {
+        clearError();
+        document.getElementById('loginName').style.display = 'block';
+        document.getElementById('card-title').textContent = 'Vytvořit účet';
+        document.getElementById('card-subtitle').textContent = 'Vyplňte všechna pole níže';
+        document.getElementById('login-buttons').style.display = 'none';
+        document.getElementById('signup-buttons').style.display = 'block';
+    }
+
+    function showLogin() {
+        clearError();
+        document.getElementById('loginName').style.display = 'none';
+        document.getElementById('card-title').textContent = 'Odemknout archiv';
+        document.getElementById('card-subtitle').textContent = 'Vložte své přihlašovací údaje';
+        document.getElementById('login-buttons').style.display = 'block';
+        document.getElementById('signup-buttons').style.display = 'none';
+    }
+
+    async function signUp() {
+        const email    = document.getElementById('loginEmail').value.trim();
+        const name     = document.getElementById('loginName').value.trim();
+        const password = document.getElementById('loginPass').value;
+
+        if (!email || !password || !name) {
+            showError('Vyplň všechna pole (E-mail, Jméno i Heslo).');
+            return;
+        }
+
+        const { error } = await _supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name } }
+        });
+
+        if (error) {
+            showError('Chyba při registraci: ' + error.message);
+        } else {
+            showLogin();
+            showError('Účet vytvořen! Zkontroluj e-mail a potvrď registraci, pak se přihlas.');
+            document.getElementById('error-message').style.color = '#2e7d32';
+        }
+    }
+
+    async function login() {
+        const email    = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPass').value;
+        clearError();
+
+        const { error } = await _supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            showError('Klíč nepasuje do zámku: ' + error.message);
+        } else {
+            window.location.href = 'accountv5.html';
+        }
+    }
+</script>
+</body>
+</html>
